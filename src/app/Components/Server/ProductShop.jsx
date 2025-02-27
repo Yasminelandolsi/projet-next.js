@@ -1,5 +1,6 @@
+'use client'; 
 import { useDispatch } from "react-redux";
-import { addItem } from "e-commerce\src\redux\slices\cartSlice.js"; // Import the addItem action
+import { addItem } from  "../../../redux/slices/cartSlice"; // Import the addItem action
 
 function ProductShop({ id, image, name, rating, price, oldPrice }) {
   const dispatch = useDispatch();

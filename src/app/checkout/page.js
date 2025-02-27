@@ -1,10 +1,12 @@
 "use client"; // Mark this as a Client Component
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // Add useDispatch
 import { useRouter } from "next/navigation"; // Use Next.js router
+import { clearCart } from "../../redux/slices/cartSlice"; // Import clearCart action
 
 const CheckoutPage = () => {
   const router = useRouter();
+  const dispatch = useDispatch(); // Get dispatch function
   const cart = useSelector((state) => state.cart);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -95,7 +97,9 @@ const CheckoutPage = () => {
     }
 
     console.log("Order submitted:", formData);
-    router.push("/"); // Navigate to home using Next.js router
+    
+    dispatch(clearCart()); // Wait for clearCart to complete
+    router.push("/"); // Now navigate to home
   };
 
   const cartSubtotal = cart.items.reduce(
@@ -445,15 +449,9 @@ const CheckoutPage = () => {
                           </li>
                         </ul>
                         <div className="form-row place-order">
-                          <input
-                            type="submit"
-                            value="Place order"
-                            className="button alt"
-                            onClick={(e) => {
+                        <button   className="button alt"  onClick={(e) => {
                               e.preventDefault();
-                              handleSubmit(e);
-                            }}
-                          />
+                              handleSubmit(e);}}>Place Order</button>
                         </div>
                       </div>
                     </div>
