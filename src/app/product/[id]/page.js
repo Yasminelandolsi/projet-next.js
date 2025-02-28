@@ -1,8 +1,10 @@
+import RecentlyViewedHandler from '@/app/Components/Client/RecentlyViewedHandler';
 import { fetchProductById } from "@/app/Services/Product";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 // Dynamically import the client component (QuantityInput)
 const QuantityInput = dynamic(() => import("@/app/Components/Client/QuantityInput"));
+const AddToCartButton = dynamic(() => import("@/app/Components/Client/AddToCartButton"));
 
 export default async function ProductPage({ params, searchParams }) {
   // Await `params` and `searchParams` to resolve their properties
@@ -26,6 +28,8 @@ export default async function ProductPage({ params, searchParams }) {
   };
   return (
     <div className="single-product-area">
+    <RecentlyViewedHandler product={product} />
+
       <div className="zigzag-bottom"></div>
       <div className="container">
         <div className="row">
@@ -121,13 +125,8 @@ export default async function ProductPage({ params, searchParams }) {
                     </div>
                     
                     <form action="" className="cart">
-                        {/* Use the dynamic QuantityInput component */}
-                        <QuantityInput 
-                       
-                      />
-                      <button className="add_to_cart_button" type="submit">
-                        Add to cart
-                      </button>
+                   
+                      <AddToCartButton product={product} />
                     </form>
                     
                     <div className="product-inner-category">

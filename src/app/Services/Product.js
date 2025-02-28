@@ -1,3 +1,6 @@
+import Cookies from 'js-cookie';
+const RECENTLY_VIEWED_COOKIE = 'recently_viewed';
+const MAX_RECENT_PRODUCTS = 3;
 export async function getTopSellersProducts() {
   try {
       const response = await fetch('http://localhost:3000/top-sellers-products');
@@ -71,3 +74,59 @@ export async function fetchProductById(productId) {
       return null;
   }
 }
+export async function getAllProducts() {
+    try {
+      const response = await fetch('http://localhost:3000/products');
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const data = await response.json();
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Products data is not in the expected format');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error in getAllProducts:', error.message);
+      return [];
+    }
+  }
+  export const updateRecentlyViewed = (product) => {
+    try {
+      const recentlyViewed = Cookies.get(RECENTLY_VIEWED_COOKIE);
+      let products = recentlyViewed ? JSON.parse(recentlyViewed) : [];
+      
+      // Remove if product already exists
+      products = products.filter(p => p.id !== product.id);
+      
+      // Add new product at the beginning and limit to MAX_RECENT_PRODUCTS
+      products.unshift({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.imageName
+      });
+      
+      products = products.slice(0, MAX_RECENT_PRODUCTS);
+      
+      // Save to cookie
+      Cookies.set(RECENTLY_VIEWED_COOKIE, JSON.stringify(products), { expires: 7 });
+      
+      return products;
+    } catch (error) {
+      console.error('Error updating recently viewed:', error);
+      return [];
+    }
+  };
+  
+  export const getRecentlyViewedProducts = async () => {
+    try {
+      const recentlyViewed = Cookies.get(RECENTLY_VIEWED_COOKIE);
+      const products = recentlyViewed ? JSON.parse(recentlyViewed) : [];
+      return products;
+    } catch (error) {
+      console.error('Error getting recently viewed products:', error);
+      return [];
+    }
+  };

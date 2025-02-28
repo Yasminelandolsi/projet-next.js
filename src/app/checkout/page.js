@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux"; // Add useDispatch
 import { useRouter } from "next/navigation"; // Use Next.js router
-import { clearCart } from "../../redux/slices/cartSlice"; // Import clearCart action
-
+import { clearCartAsync } from "@/redux/slices/cartSlice";
 const CheckoutPage = () => {
   const router = useRouter();
   const dispatch = useDispatch(); // Get dispatch function
@@ -21,7 +20,7 @@ const CheckoutPage = () => {
     billing_postcode: "",
     billing_email: "",
     billing_phone: "",
-    ship_to_different_address: true,
+    ship_to_different_address: false,
     shipping_country: "AX",
     shipping_first_name: "",
     shipping_last_name: "",
@@ -93,12 +92,17 @@ const CheckoutPage = () => {
 
     if (hasErrors) {
       setFormErrors(newErrors);
+      console.log("Validation Errors:", newErrors);  // Log des erreurs
+
       return;
     }
 
-    console.log("Order submitted:", formData);
+    // Clear the cart
+    dispatch(clearCartAsync()).unwrap();
     
-    dispatch(clearCart()); // Wait for clearCart to complete
+    // Show success message
+    alert('Order placed successfully!');
+    console.log("Order submitted, redirecting to home...");
     router.push("/"); // Now navigate to home
   };
 
@@ -340,8 +344,150 @@ const CheckoutPage = () => {
                           </h3>
                           {formData.ship_to_different_address && (
                             <div className="shipping_address">
-                              {/* Shipping form fields similar to billing fields */}
-                            </div>
+ <p className="form-row form-row-wide">
+      <label>
+        Civility <abbr className="required">*</abbr>
+      </label>
+      <select
+        name="shipping_country"
+        value={formData.shipping_country}
+        onChange={handleInputChange}
+        className="country_select"
+      >
+        <option value="AX">Mr</option>
+        <option value="AF">Mlle</option>
+        <option value="MM">Mme</option>
+      </select>
+    </p>
+    <p className="form-row form-row-first">
+      <label>
+        First Name <abbr className="required">*</abbr>
+      </label>
+      <input
+        type="text"
+        name="shipping_first_name"
+        value={formData.shipping_first_name}
+        onChange={handleInputChange}
+        className={`input-text ${
+          formErrors.shipping_first_name ? "error" : ""
+        }`}
+      />
+      {formErrors.shipping_first_name && (
+        <span className="error-message">
+          {formErrors.shipping_first_name}
+        </span>
+      )}
+    </p>
+    <p className="form-row form-row-last">
+      <label>
+        Last Name <abbr className="required">*</abbr>
+      </label>
+      <input
+        type="text"
+        name="shipping_last_name"
+        value={formData.shipping_last_name}
+        onChange={handleInputChange}
+        className={`input-text ${
+          formErrors.shipping_last_name ? "error" : ""
+        }`}
+      />
+      {formErrors.shipping_last_name && (
+        <span className="error-message">
+          {formErrors.shipping_last_name}
+        </span>
+      )}
+    </p>
+    <div className="clear"></div>
+    <p className="form-row form-row-wide">
+      <label>Company Name</label>
+      <input
+        type="text"
+        name="shipping_company"
+        value={formData.shipping_company}
+        onChange={handleInputChange}
+        className="input-text"
+      />
+    </p>
+    <p className="form-row form-row-wide">
+      <label>
+        Address <abbr className="required">*</abbr>
+      </label>
+      <input
+        type="text"
+        name="shipping_address_1"
+        value={formData.shipping_address_1}
+        onChange={handleInputChange}
+        className={`input-text ${
+          formErrors.shipping_address_1 ? "error" : ""
+        }`}
+        placeholder="Street address"
+      />
+      {formErrors.shipping_address_1 && (
+        <span className="error-message">
+          {formErrors.shipping_address_1}
+        </span>
+      )}
+    </p>
+    <p className="form-row form-row-wide">
+      <input
+        type="text"
+        name="shipping_address_2"
+        value={formData.shipping_address_2}
+        onChange={handleInputChange}
+        className="input-text"
+        placeholder="Apartment, suite, unit etc. (optional)"
+      />
+    </p>
+    <p className="form-row form-row-wide">
+      <label>
+        Town / City <abbr className="required">*</abbr>
+      </label>
+      <input
+        type="text"
+        name="shipping_city"
+        value={formData.shipping_city}
+        onChange={handleInputChange}
+        className={`input-text ${
+          formErrors.shipping_city ? "error" : ""
+        }`}
+      />
+      {formErrors.shipping_city && (
+        <span className="error-message">
+          {formErrors.shipping_city}
+        </span>
+      )}
+    </p>
+    <p className="form-row form-row-first">
+      <label>County</label>
+      <input
+        type="text"
+        name="shipping_state"
+        value={formData.shipping_state}
+        onChange={handleInputChange}
+        className="input-text"
+        placeholder="State / County"
+      />
+    </p>
+    <p className="form-row form-row-last">
+      <label>
+        Postcode <abbr className="required">*</abbr>
+      </label>
+      <input
+        type="text"
+        name="shipping_postcode"
+        value={formData.shipping_postcode}
+        onChange={handleInputChange}
+        className={`input-text ${
+          formErrors.shipping_postcode ? "error" : ""
+        }`}
+      />
+      {formErrors.shipping_postcode && (
+        <span className="error-message">
+          {formErrors.shipping_postcode}
+        </span>
+      )}
+    </p>
+    <div className="clear"></div>                            </div>
                           )}
                           <p className="form-row notes">
                             <label>Order Notes</label>

@@ -1,9 +1,13 @@
 "use client";
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createCart, updateCart } from "@/app/Services/Cart";
 
-// Async thunk to create a new cart when the user enters the site
+const getPlainCartData = (state) => ({
+  id: state.cartId,
+  items: state.items.map(item => ({...item})),
+  orderTotal: state.orderTotal
+});
+
 export const initializeCart = createAsyncThunk("cart/initializeCart", async () => {
   const data = await createCart();
   return {
@@ -13,11 +17,35 @@ export const initializeCart = createAsyncThunk("cart/initializeCart", async () =
   };
 });
 
-// Async thunk to update the cart on the server each time it changes
-export const syncCart = createAsyncThunk("cart/syncCart", async (cartState) => {
-  const updated = await updateCart(cartState);
-  return updated;
-});
+export const clearCartAsync = createAsyncThunk(
+  "cart/clearCartAsync",
+  async (_, { rejectWithValue }) => {
+    try {
+      const newCart = await createCart();
+      localStorage.removeItem('currentCart');
+      return {
+        cartId: newCart.id,
+        items: [],
+        orderTotal: 0,
+      };
+    } catch (error) {
+      return rejectWithValue("Failed to clear cart: " + error.message);
+    }
+  }
+);
+
+export const syncCart = createAsyncThunk(
+  "cart/syncCart", 
+  async (cartState, { rejectWithValue }) => {
+    try {
+      const plainCart = JSON.parse(JSON.stringify(cartState));
+      const updated = await updateCart(plainCart);
+      return updated;
+    } catch (error) {
+      return rejectWithValue("Failed to sync cart: " + error.message);
+    }
+  }
+);
 
 const calculateOrderTotal = (items) => {
   const cartSubtotal = items.reduce(
@@ -26,7 +54,7 @@ const calculateOrderTotal = (items) => {
     0
   );
   const tax = cartSubtotal * 0.2;
-  return cartSubtotal + tax;
+  return parseFloat((cartSubtotal + tax).toFixed(2));
 };
 
 const initialState = {
@@ -41,35 +69,45 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    setCart: (state, action) => {
-      state.cartId = action.payload.cartId;
-      state.items = action.payload.items || [];
-      state.orderTotal = action.payload.orderTotal || 0;
-    },
     addItem: (state, action) => {
       const existingItem = state.items.find((item) => item.id === action.payload.id);
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
       } else {
-        state.items.push(action.payload);
+        state.items.push({...action.payload});
       }
       state.orderTotal = calculateOrderTotal(state.items);
+      
+      const plainCart = getPlainCartData(state);
+      updateCart(plainCart).catch(console.error);
     },
     updateItem: (state, action) => {
       const index = state.items.findIndex((item) => item.id === action.payload.id);
-      if (index !== -1) state.items[index] = action.payload;
-      state.orderTotal = calculateOrderTotal(state.items);
+      if (index !== -1) {
+        state.items[index] = {...action.payload};
+        state.orderTotal = calculateOrderTotal(state.items);
+        
+        const plainCart = getPlainCartData(state);
+        updateCart(plainCart).catch(console.error);
+      }
     },
     removeItem: (state, action) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
       state.orderTotal = calculateOrderTotal(state.items);
+      
+      const plainCart = getPlainCartData(state);
+      updateCart(plainCart).catch(console.error);
+    },
+    updateOrderTotal: (state) => {
+      state.orderTotal = calculateOrderTotal(state.items);
+      const plainCart = getPlainCartData(state);
+      updateCart(plainCart).catch(console.error);
     },
     clearCart: (state) => {
       state.items = [];
       state.orderTotal = 0;
-    },
-    updateOrderTotal: (state, action) => {
-      state.orderTotal = action.payload || 0;
+      localStorage.removeItem('currentCart');
+      localStorage.removeItem('cartItems');
     },
   },
   extraReducers: (builder) => {
@@ -87,19 +125,36 @@ const cartSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
+      .addCase(clearCartAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(clearCartAsync.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cartId = action.payload.cartId;
+        state.items = [];
+        state.orderTotal = 0;
+      })
+      .addCase(clearCartAsync.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
       .addCase(syncCart.pending, (state) => {
         state.status = "loading";
       })
       .addCase(syncCart.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Use response from server if needed
+        state.cartId = action.payload.id;
+        state.items = action.payload.items;
+        state.orderTotal = action.payload.orderTotal;
       })
       .addCase(syncCart.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
+        
       });
+      
   },
 });
 
-export const { setCart, addItem, updateItem, removeItem, clearCart, updateOrderTotal } = cartSlice.actions;
+export const { addItem, updateItem, removeItem,updateOrderTotal } = cartSlice.actions;
 export default cartSlice.reducer;

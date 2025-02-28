@@ -15,8 +15,13 @@ function ProductShop({ id, image, name, rating, price, oldPrice }) {
     };
 
     // Dispatch the addItem action
-    dispatch(addItem(product));
-  };
+    try {
+      dispatch(addItem(product));
+      // Optional: Add visual feedback
+      alert('Product added to cart!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }  };
 
   return (
     <div className="product-item">

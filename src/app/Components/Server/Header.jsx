@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Search from './Search';
+import Search from '../Client/Search';
 import CartComponent from '../Client/CartComponent';
 import Link from 'next/link';
 
