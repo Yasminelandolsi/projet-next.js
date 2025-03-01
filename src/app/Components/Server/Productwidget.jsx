@@ -1,8 +1,7 @@
+"use client";
+
 import { getCategoryFromImage } from '@/app/Services/Category';
 import ProductItem from './ProductItem';
-
-
-
 export default function ProductWidget({ title, products }) {
   if (!products || products.length === 0) {
     return (
