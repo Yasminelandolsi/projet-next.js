@@ -16,16 +16,13 @@ const Search = () => {
   const ITEMS_PER_PAGE = 12;
   const SLIDING_WINDOW = 3;
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const allProducts = await getAllProducts();
-        setProducts(allProducts);
-      } catch (error) {
-        console.error('Error loading products:', error);
-      }
-    };
-    loadProducts();
+  const loadProducts = useCallback(async () => {
+    try {
+      const allProducts = await getAllProducts();
+      setProducts(allProducts);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
   }, []);
 
   useEffect(() => {
@@ -56,6 +53,10 @@ const Search = () => {
 
   const handleFocus = () => {
     setIsFocused(true);
+    // Fetch products when input is focused
+    if (products.length === 0) {
+      loadProducts();
+    }
   };
 
   const handleKeyDown = (event) => {
@@ -64,7 +65,6 @@ const Search = () => {
       setActiveIndex((prevIndex) => {
         const newIndex = Math.min(prevIndex + 1, filteredProducts.length - 1);
         
-        // Load more items when approaching the bottom
         if (newIndex >= displayedProducts.length - 2) {
           loadMoreItems();
         }

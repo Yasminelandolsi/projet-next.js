@@ -1,11 +1,11 @@
-"use client"; // Mark this as a Client Component
+"use client"; 
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux"; // Add useDispatch
-import { useRouter } from "next/navigation"; // Use Next.js router
+import { useSelector, useDispatch } from "react-redux"; 
+import { useRouter } from "next/navigation"; 
 import { clearCartAsync } from "@/redux/slices/cartSlice";
 const CheckoutPage = () => {
   const router = useRouter();
-  const dispatch = useDispatch(); // Get dispatch function
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
   const [formErrors, setFormErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -96,10 +96,9 @@ const CheckoutPage = () => {
       return;
     }
 
-    // Clear the cart
+
     dispatch(clearCartAsync()).unwrap();
     
-    // Show success message
     alert('Order placed successfully!');
     router.push("/"); 
   };

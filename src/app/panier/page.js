@@ -49,7 +49,6 @@ const Cart = () => {
                   <thead>
                     <tr>
                       <th className="product-remove">&nbsp;</th>
-                      <th className="product-thumbnail">&nbsp;</th>
                       <th className="product-name">Product</th>
                       <th className="product-price">Price</th>
                       <th className="product-quantity">Quantity</th>
@@ -70,15 +69,8 @@ const Cart = () => {
                                 ×
                               </button>
                             </td>
-                            <td className="product-thumbnail">
-                              <Image
-                                width={145}
-                                height={145}
-                                src={img1}
-                                alt={item.name}
-                                className="shop_thumbnail"
-                              />
-                            </td>
+                           
+                           
                             <td className="product-name">{item.name}</td>
                             <td className="product-price">{price.toFixed(2)}€</td>
                             <td className="product-quantity">
