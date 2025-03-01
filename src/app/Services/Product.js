@@ -94,25 +94,22 @@ export async function getAllProducts() {
   }
   export const updateRecentlyViewed = (product) => {
     try {
-      const recentlyViewed = Cookies.get(RECENTLY_VIEWED_COOKIE);
+      const recentlyViewed = Cookies.get(RECENTLY_VIEWED_COOKIE); // Fixed line
       let products = recentlyViewed ? JSON.parse(recentlyViewed) : [];
       
-      // Remove if product already exists
       products = products.filter(p => p.id !== product.id);
-      
-      // Add new product at the beginning and limit to MAX_RECENT_PRODUCTS
       products.unshift({
         id: product.id,
         name: product.name,
         price: product.price,
-        image: product.imageName
+        imageName: product.imageName,
+        rating: product.review,
+        oldPrice: product.oldPrice,
+        discountRate: product.discountRate
       });
       
       products = products.slice(0, MAX_RECENT_PRODUCTS);
-      
-      // Save to cookie
       Cookies.set(RECENTLY_VIEWED_COOKIE, JSON.stringify(products), { expires: 7 });
-      
       return products;
     } catch (error) {
       console.error('Error updating recently viewed:', error);

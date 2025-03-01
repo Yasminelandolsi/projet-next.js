@@ -33,8 +33,8 @@ export default function ProductWidget({ title, products }) {
                 name={product.name}
                 rating={product.review}
                 price={product.price}
-                oldPrice={oldPrice}
-              />
+                oldPrice={oldPrice} // Pass the computed value
+                />
             );
             
         })}

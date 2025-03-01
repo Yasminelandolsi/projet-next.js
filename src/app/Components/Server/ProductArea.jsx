@@ -1,11 +1,7 @@
 "use client";
-
-import { useEffect, useState } from 'react';
-import { getTopSellersProducts, getTopNewProducts } from '@/app/Services/Product';
-import ProductWidget from './Productwidget';
-import Cookies from 'js-cookie';
-
-const RECENTLY_VIEWED_COOKIE = 'recently_viewed';
+import { useEffect, useState } from "react";
+import { getTopSellersProducts, getTopNewProducts, getRecentlyViewedProducts } from "@/app/Services/Product"; // Import function
+import ProductWidget from "./Productwidget";
 
 export default function ProductsArea() {
   const [topSellersProducts, setTopSellersProducts] = useState([]);
@@ -14,19 +10,19 @@ export default function ProductsArea() {
 
   useEffect(() => {
     const loadProducts = async () => {
-      const [sellers, newProducts] = await Promise.all([
+      console.log("Fetching products...");
+
+      const [sellers, newProducts, recentlyViewed] = await Promise.all([
         getTopSellersProducts(),
-        getTopNewProducts()
+        getTopNewProducts(),
+        getRecentlyViewedProducts(), 
       ]);
-      
+
+     
+
       setTopSellersProducts(sellers);
       setTopNewProducts(newProducts);
-      
-      // Get recently viewed from cookies
-      const recentlyViewed = Cookies.get(RECENTLY_VIEWED_COOKIE);
-      if (recentlyViewed) {
-        setRecentlyViewedProducts(JSON.parse(recentlyViewed));
-      }
+      setRecentlyViewedProducts(recentlyViewed);
     };
 
     loadProducts();
@@ -37,20 +33,9 @@ export default function ProductsArea() {
       <div className="zigzag-bottom" />
       <div className="container">
         <div className="row">
-          <ProductWidget 
-            title="Top Sellers" 
-            products={topSellersProducts} 
-          />
-           
-          <ProductWidget 
-            title="Recently Viewed"
-            products={recentlyViewedProducts} 
-          />
-
-          <ProductWidget 
-            title="Top New" 
-            products={topNewProducts} 
-          />
+          <ProductWidget title="Top Sellers" products={topSellersProducts} />
+          <ProductWidget title="Recently Viewed" products={recentlyViewedProducts} />
+          <ProductWidget title="Top New" products={topNewProducts} />
         </div>
       </div>
     </div>

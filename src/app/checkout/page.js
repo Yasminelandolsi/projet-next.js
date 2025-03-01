@@ -92,7 +92,6 @@ const CheckoutPage = () => {
 
     if (hasErrors) {
       setFormErrors(newErrors);
-      console.log("Validation Errors:", newErrors);  // Log des erreurs
 
       return;
     }
@@ -102,8 +101,7 @@ const CheckoutPage = () => {
     
     // Show success message
     alert('Order placed successfully!');
-    console.log("Order submitted, redirecting to home...");
-    router.push("/"); // Now navigate to home
+    router.push("/"); 
   };
 
   const cartSubtotal = cart.items.reduce(
